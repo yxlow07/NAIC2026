@@ -1,5 +1,8 @@
 # Technical Write-Up: Diabetic Retinopathy Screening
 
+## Poster
+![Poster](poster.png)
+
 ## 1. Model Overview
 We use a stacking ensemble of **ResNet-34** and **EfficientNet-B4**, whose 5-class softmax outputs (10 features total) are fed into a **Random Forest** meta-classifier (`class_weight="balanced"`) for the final prediction. ResNet-34 was chosen for its lightweight residual architecture and fast inference, while EfficientNet-B4 complements it with higher capacity via compound scaling. The Random Forest stacker was selected over simpler linear models for its robustness to overfitting and ability to capture non-linear interactions between the base models' probability outputs.
 
@@ -21,6 +24,3 @@ The inference pipeline uses only two lightweight CNNs plus a Random Forest stack
 - **Offline Data Augmentation (Data Overlap)**: To address the severe class imbalance and provide sufficient minority class samples for stable validation (using Macro F1), we implemented offline augmentations before the data split. We accepted the trade-off of having spatially augmented variants of the same image across splits to ensure minority classes had statistical representation during evaluation, and to simulate real-world scenarios where models must evaluate multiple, slightly varied images of returning patients.
 - **Data-Centric AI vs. Hyperparameter Tuning**: Rather than executing exhaustive hyperparameter grid searches, we prioritized a Data-Centric approach. We invested our computational budget into building a robust preprocessing pipeline (Graham's method, CLAHE) and leveraged established transfer-learning default parameters for our pre-trained models. This was combined with dynamic learning rate scheduling and early stopping, relying on our meta-classifier to smooth out sub-optimalities without requiring microscopic tuning of individual base models.
 - **Macro F1-Score over Raw Accuracy**: Given the extreme class imbalance (as evidenced by Class 0 heavily outnumbering severe Class 3), raw accuracy is a highly misleading metric; a model could achieve high accuracy simply by over-predicting the majority class. We specifically used Validation Macro F1-score for model checkpointing and early stopping. Macro F1 treats all classes equally, heavily penalizing the model if it ignores rare but clinically severe cases, ensuring our final model is genuinely capable of safely screening the entire disease spectrum.
-
-## Poster
-![Poster](poster.png)
