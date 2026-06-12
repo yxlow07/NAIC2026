@@ -4,7 +4,7 @@
 We use a stacking ensemble of **ResNet-34** and **EfficientNet-B4**, whose 5-class softmax outputs (10 features total) are fed into a **Random Forest** meta-classifier (`class_weight="balanced"`) for the final prediction. ResNet-34 was chosen for its lightweight residual architecture and fast inference, while EfficientNet-B4 complements it with higher capacity via compound scaling. The Random Forest stacker was selected over simpler linear models for its robustness to overfitting and ability to capture non-linear interactions between the base models' probability outputs.
 
 ## 2. Preprocessing & Augmentation
-All images undergo: **Adaptive Cropping** (black border removal) → **Graham's method** → **RGB-CLAHE** → **Green-channel CLAHE** → **Circular ROI masking**, then resized/center-cropped to **384×384**. Minority classes were oversampled offline via spatial flips to address severe class imbalance.
+All images undergo: **Adaptive Cropping** (black border removal), **Graham's method**, **RGB-CLAHE** **Green-channel CLAHE**, **Circular ROI masking**, then resized/center-cropped to **384×384**. Minority classes were oversampled offline via spatial flips to address severe class imbalance.
 
 ## 3. Training Setup
 Base CNNs were fine-tuned with **AdamW** (lr=2e-4, wd=1e-5) and a **LambdaLR** scheduler (2-epoch warmup + cosine decay), for up to **20 epochs** with **early stopping** (patience=5) on validation Macro F1. **Cross-Entropy Loss** with class weights and `WeightedRandomSampler` were used to handle imbalance. Mixed precision (`autocast`) accelerated training.
